@@ -33,11 +33,15 @@ router.get('/students/:id', async (req, res) => {
 router.post('/students', async (req, res) => {
   const { first_name, last_name, email, phone, age, dob } = req.body;
   try {
-    const newStudent = await dal.addStudent(first_name, last_name, email, phone, age, dob);
-    res.status(201).json(newStudent);
+    await dal.addStudent(first_name, last_name, email, phone, age, dob);
+    res.status(201).redirect('/');
   } catch (error) {
-    console.error('Error adding student:', error);
-    res.status(500).send('Internal Server Error');
+    if (error.code === '23505') { // Check if the error is due to duplicate key violation
+      res.status(400).send('Student with the same ID already exists');
+    } else {
+      console.error('Error adding student:', error);
+      res.status(500).send('Internal Server Error');
+    }
   }
 });
 
@@ -45,8 +49,10 @@ router.post('/students', async (req, res) => {
 router.put('/students/:id', async (req, res) => {
   const id = req.params.id;
   const { first_name, last_name, email, phone, age, dob } = req.body;
+  console.log(`Updating student with id ${id} with data:`, req.body); // Log the data being used for the update
   try {
     const updatedStudent = await dal.updateStudent(id, first_name, last_name, email, phone, age, dob);
+    console.log('Updated student:', updatedStudent); // Log the result of the update
     res.json(updatedStudent);
   } catch (error) {
     console.error('Error updating student:', error);
