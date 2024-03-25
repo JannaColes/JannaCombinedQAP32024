@@ -20,16 +20,31 @@ const getStudentById = async (id) => {
   return rows[0];
 };
 
-// Function to add a new student to the database
-const addStudent = async (first_name, last_name, email, phone, age, dob) => {
-  const { rows } = await pool.query('INSERT INTO students (first_name, last_name, email, phone, age, dob) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *', [first_name, last_name, email, phone, age, dob]);
-  return rows[0];
+async function addStudent(first_name, last_name, email, phone, age, dob) {
+  const client = await pool.connect();
+  try {
+    const query = 'INSERT INTO students (first_name, last_name, email, phone, age, dob) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id';
+    const values = [first_name, last_name, email, phone, age, dob];
+    const result = await client.query(query, values);
+    return result.rows[0].id; // Return the ID of the inserted student
+  } catch (error) {
+    throw error; // Rethrow any other errors
+  } finally {
+    client.release();
+  }
 };
+
 
 // Function to update a student in the database
 const updateStudent = async (id, first_name, last_name, email, phone, age, dob) => {
-  const { rows } = await pool.query('UPDATE students SET first_name=$2, last_name=$3, email=$4, phone=$5, age=$6, dob=$7 WHERE id=$1 RETURNING *', [id, first_name, last_name, email, phone, age, dob]);
-  return rows[0];
+  console.log(id, first_name, last_name, email, phone, age, dob);
+  try {
+    const { rows } = await pool.query('UPDATE students SET first_name=$2, last_name=$3, email=$4, phone=$5, age=$6, dob=$7 WHERE id=$1 RETURNING *', [id, first_name, last_name, email, phone, age, dob]);
+    console.log(rows[0]);
+    return rows[0];
+  } catch (error) {
+    console.error('Error executing query', error);
+  }
 };
 
 // Function to delete a student from the database
