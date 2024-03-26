@@ -36,17 +36,39 @@ async function addStudent(first_name, last_name, email, phone, age, dob) {
 
 
 // Function to update a student in the database
-const updateStudent = async (id, first_name, last_name, email, phone, age, dob) => {
-  console.log(id, first_name, last_name, email, phone, age, dob);
+const updateStudent = async (id, studentData) => {
+  console.log('updateStudent function called');
+  console.log(`ID: ${id}`);
+  console.log('Student data:', studentData);
+
+  const { first_name, last_name, email, phone, age, dob } = studentData;
+  const query = `
+    UPDATE students 
+    SET first_name = $1, 
+        last_name = $2, 
+        email = $3, 
+        phone = $4, 
+        age = $5, 
+        dob = $6 
+    WHERE id = $7
+    RETURNING *;
+  `;
+  const values = [first_name, last_name, email, phone, age, dob, id];
+
   try {
-    const { rows } = await pool.query('UPDATE students SET first_name=$2, last_name=$3, email=$4, phone=$5, age=$6, dob=$7 WHERE id=$1 RETURNING *', [id, first_name, last_name, email, phone, age, dob]);
-    console.log(rows[0]);
-    return rows[0];
-  } catch (error) {
-    console.error('Error executing query', error);
+    const result = await pool.query(query, values);
+    console.log('Update result:', result);
+
+    if (result.rows.length > 0) {
+      return result.rows[0];
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.error('Error updating student:', err);
+    throw err;
   }
 };
-
 // Function to delete a student from the database
 const deleteStudent = async (id) => {
   await pool.query('DELETE FROM students WHERE id=$1', [id]);

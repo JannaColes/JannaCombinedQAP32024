@@ -4,31 +4,20 @@ const dal = require('../dal/dal');
 
 // Route to get all students
 router.get('/students', async (req, res) => {
-  try {
-    const students = await dal.getStudents();
-    res.json(students);
-  } catch (error) {
-    console.error('Error fetching students:', error);
-    res.status(500).send('Internal Server Error');
-  }
+  const students = await dal.getStudents();
+  res.json(students);
 });
 
 // Route to get a specific student by ID
 router.get('/students/:id', async (req, res) => {
   const id = req.params.id;
-  try {
-    const student = await dal.getStudentById(id);
-    if (student) {
-      res.json(student);
-    } else {
-      res.status(404).send('Student not found');
-    }
-  } catch (error) {
-    console.error('Error fetching student:', error);
-    res.status(500).send('Internal Server Error');
+  const student = await dal.getStudentById(id); // Use getStudentById, not getStudent
+  if (student) {
+    res.json(student);
+  } else {
+    res.status(404).send('Student not found');
   }
 });
-
 // Route to add a new student
 router.post('/students', async (req, res) => {
   const { first_name, last_name, email, phone, age, dob } = req.body;
@@ -48,15 +37,22 @@ router.post('/students', async (req, res) => {
 // Route to update a student
 router.put('/students/:id', async (req, res) => {
   const id = req.params.id;
-  const { first_name, last_name, email, phone, age, dob } = req.body;
-  console.log(`Updating student with id ${id} with data:`, req.body); // Log the data being used for the update
+  const studentData = req.body;
+  
+  // Check if studentData is not empty
+  if (Object.keys(studentData).length === 0) {
+    return res.status(400).send('No fields to update were provided');
+  }
+
   try {
-    const updatedStudent = await dal.updateStudent(id, first_name, last_name, email, phone, age, dob);
-    console.log('Updated student:', updatedStudent); // Log the result of the update
-    res.json(updatedStudent);
-  } catch (error) {
-    console.error('Error updating student:', error);
-    res.status(500).send('Internal Server Error');
+    const updatedStudent = await dal.updateStudent(id, studentData);
+    if (updatedStudent) {
+      res.json(updatedStudent);
+    } else {
+      res.status(404).send('Student not found');
+    }
+  } catch (err) {
+    res.status(500).send('Error updating student');
   }
 });
 
