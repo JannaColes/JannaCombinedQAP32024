@@ -86,6 +86,9 @@
     // Convert the form data to an object
     const data = Object.fromEntries(formData);
 
+    // Log the form data
+    console.log('Form data:', data);
+
     // Send a PUT request to the server
     fetch(`/api/students/${data.id}`, {
       method: 'PUT',
@@ -140,31 +143,30 @@
     .catch(error => console.error('Error deleting student:', error));
 }
 
-function updateStudent() {
-            const id = document.getElementById('edit-student-id').value;
-            const updatedData = {
-                first_name: document.getElementById('edit-first_name').value,
-                last_name: document.getElementById('edit-last_name').value,
-                email: document.getElementById('edit-email').value,
-                phone: document.getElementById('edit-phone').value,
-                age: document.getElementById('edit-age').value,
-                dob: document.getElementById('edit-dob').value,
-            };
+// Collect updated student data from form fields
+const updatedData = {
+    first_name: document.getElementById('edit-first_name').value,
+    last_name: document.getElementById('edit-last_name').value,
+    email: document.getElementById('edit-email').value,
+    phone: document.getElementById('edit-phone').value,
+    age: document.getElementById('edit-age').value,
+    dob: document.getElementById('edit-dob').value,
+};
 
-            fetch(`/api/students/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                location.reload();
-            })
-            .catch((error) => console.error('Error:', error));
-        }
+// Send updated data to the backend
+fetch(`/api/students/${id}`, {
+    method: 'PUT',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updatedData),
+})
+.then(response => response.json())
+.then(data => {
+    console.log(data);
+    location.reload();
+})
+.catch((error) => console.error('Error:', error));
     </script>
 </body>
 

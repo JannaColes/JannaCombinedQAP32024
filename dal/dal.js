@@ -9,69 +9,84 @@ const pool = new Pool({
 });
 
 // Function to retrieve all students from the database
-const getStudents = async () => {
-  const { rows } = await pool.query('SELECT * FROM students');
-  return rows;
+const getStudents = () => {
+  return new Promise((resolve, reject) => {
+    pool.query('SELECT * FROM students')
+      .then(result => resolve(result.rows))
+      .catch(error => {
+        console.error('Error fetching students:', error);
+        reject(error);
+      });
+  });
 };
 
 // Function to retrieve a student by ID from the database
-const getStudentById = async (id) => {
-  const { rows } = await pool.query('SELECT * FROM students WHERE id = $1', [id]);
-  return rows[0];
+const getStudentById = (id) => {
+  return new Promise((resolve, reject) => {
+    pool.query('SELECT * FROM students WHERE id = $1', [id])
+      .then(result => resolve(result.rows[0]))
+      .catch(error => {
+        console.error(`Error fetching student with ID ${id}:`, error);
+        reject(error);
+      });
+  });
 };
 
-async function addStudent(first_name, last_name, email, phone, age, dob) {
-  const client = await pool.connect();
-  try {
+// Function to add a student to the database
+const addStudent = (first_name, last_name, email, phone, age, dob) => {
+  return new Promise((resolve, reject) => {
     const query = 'INSERT INTO students (first_name, last_name, email, phone, age, dob) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id';
     const values = [first_name, last_name, email, phone, age, dob];
-    const result = await client.query(query, values);
-    return result.rows[0].id; // Return the ID of the inserted student
-  } catch (error) {
-    throw error; // Rethrow any other errors
-  } finally {
-    client.release();
-  }
+    pool.query(query, values)
+      .then(result => resolve(result.rows[0].id))
+      .catch(error => {
+        console.error('Error adding student:', error);
+        reject(error);
+      });
+  });
 };
-
 
 // Function to update a student in the database
-const updateStudent = async (id, studentData) => {
-  console.log('updateStudent function called');
-  console.log(`ID: ${id}`);
-  console.log('Student data:', studentData);
+async function updateStudent(id, updatedData) {
+  const { first_name, last_name, email, phone, age, dob } = updatedData;
+  const query = {
+      text: `
+          UPDATE students 
+          SET 
+              first_name = COALESCE($1, first_name), 
+              last_name = COALESCE($2, last_name), 
+              email = COALESCE($3, email), 
+              phone = COALESCE($4, phone), 
+              age = COALESCE($5, age), 
+              dob = COALESCE($6, dob) 
+          WHERE id = $7
+          RETURNING *;
+      `,
+      values: [first_name, last_name, email, phone, age, dob, id]
+  };
 
-  const { first_name, last_name, email, phone, age, dob } = studentData;
-  const query = `
-    UPDATE students 
-    SET first_name = $1, 
-        last_name = $2, 
-        email = $3, 
-        phone = $4, 
-        age = $5, 
-        dob = $6 
-    WHERE id = $7
-    RETURNING *;
-  `;
-  const values = [first_name, last_name, email, phone, age, dob, id];
-
-  try {
-    const result = await pool.query(query, values);
-    console.log('Update result:', result);
-
-    if (result.rows.length > 0) {
-      return result.rows[0];
-    } else {
-      return null;
-    }
-  } catch (err) {
-    console.error('Error updating student:', err);
-    throw err;
+  const { rows } = await pool.query(query);
+  if (rows.length > 0) {
+      return rows[0];
+  } else {
+      return null; // Student not found
   }
-};
+}
+
+
+
+
+
 // Function to delete a student from the database
-const deleteStudent = async (id) => {
-  await pool.query('DELETE FROM students WHERE id=$1', [id]);
+const deleteStudent = (id) => {
+  return new Promise((resolve, reject) => {
+    pool.query('DELETE FROM students WHERE id=$1', [id])
+      .then(() => resolve())
+      .catch(error => {
+        console.error('Error deleting student:', error);
+        reject(error);
+      });
+  });
 };
 
 module.exports = {
