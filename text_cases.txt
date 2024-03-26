@@ -1,0 +1,19 @@
+-As an administrative assistant, I can view a web page listing all the students from the students database.
+
+-As a faculty member, I can retrieve all student records from the students database via a REST API, where the data is returned in JSON format.
+
+-As an administrative staff member, I can access a web page that allows me to add a new student entry to the students database.
+
+-As a school administrator, I can edit existing student information via a web interface, ensuring that the updates are accurately reflected in the students database.
+
+-As a registrar, I can delete student records from the students database using a web-based interface, confirming the successful removal of the student entry.
+
+-As a guidance counselor, I can search for specific students in the students database based on criteria such as name, age, or date of birth, ensuring accurate retrieval of student information.
+
+-As an academic advisor, I can view detailed information about a selected student, including their contact details, academic records, and any additional notes stored in the students database.
+
+-As a system administrator, I can monitor the application's performance under load, ensuring that it remains responsive and stable even during peak usage periods.
+
+-As a quality assurance tester, I can verify that the application gracefully handles errors and edge cases, such as invalid data input or unexpected API responses, ensuring robustness and reliability.
+
+-As a user with limited permissions, I can access only certain functionalities of the application based on my role, ensuring appropriate access control and data security measures are in place.
