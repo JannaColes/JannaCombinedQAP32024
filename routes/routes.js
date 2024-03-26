@@ -33,6 +33,7 @@ router.get('/students/:id', (req, res) => {
     });
 });
 
+
 // Route to add a new student
 router.post('/students', (req, res) => {
   const { first_name, last_name, email, phone, age, dob } = req.body;
