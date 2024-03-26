@@ -60,11 +60,12 @@ app.post('/students', async (req, res) => {
 });
 
 // Route to serve the index page
+// Route to serve the index page
 app.get('/students/:id', async (req, res) => {
   try {
     const studentId = req.params.id;
     console.log('Fetching student with ID:', studentId);
-    const student = await dal.getStudent(studentId);
+    const student = await dal.getStudentById(studentId); // Update function call to getStudentById
     if (student) {
       console.log('Fetched student:', student);
       res.json(student);
@@ -78,7 +79,8 @@ app.get('/students/:id', async (req, res) => {
   }
 });
 
-app.put('/students/:id', async (req, res) => {
+// Route to update the student data
+app.post('/students/:id', async (req, res) => {
   try {
     const studentId = req.params.id;
     console.log('Updating student with ID:', studentId);
@@ -93,6 +95,25 @@ app.put('/students/:id', async (req, res) => {
     }
   } catch (error) {
     console.error('Error updating student:', error);
+    res.status(500).send(error.message);
+  }
+});
+// Route to serve the edit student form
+app.get('/students/:id/edit', async (req, res) => {
+  try {
+    const studentId = req.params.id;
+    console.log('Fetching student with ID:', studentId);
+    const student = await dal.getStudentById(studentId);
+    if (student) {
+      console.log('Fetched student:', student);
+      // Render the edit form with the student's information
+      res.render('edit', { student });
+    } else {
+      console.log('Student not found with ID:', studentId);
+      res.status(404).send('Student not found');
+    }
+  } catch (error) {
+    console.error('Error fetching student:', error);
     res.status(500).send(error.message);
   }
 });
