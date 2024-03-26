@@ -1,2 +1,2 @@
--- SELECT
-SELECT * FROM students;
+
+SELECT * FROM students ORDER BY id ASC;
